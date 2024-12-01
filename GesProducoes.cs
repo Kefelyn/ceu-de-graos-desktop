@@ -13,7 +13,7 @@ namespace TelasDesktopPIM
 {
     public partial class GesProducoes : Form
     {
-        private readonly string connectionString = "Server=DESKTOP-AGU3OAL;Database=SistemasFazenda;Trusted_Connection=True;";
+        private readonly string connectionString = "Server=JANUARY\\SQLDEVELOPER;Database=SistemasFazenda;Trusted_Connection=True;";
         private DataGridView dataGridViewProducoes;
 
 
@@ -23,24 +23,25 @@ namespace TelasDesktopPIM
             InitializeDataGridView(); // Inicializa e configura o DataGridView
             CarregarProducoes();      // Carrega as produções ao inicializar o formulário
 
+            // Associando os eventos KeyDown aos respectivos métodos
+            textBoxCodigo.KeyDown += textBoxCodigo_KeyDown;
+            textBoxNomeProduto.KeyDown += textBoxNomeProduto_KeyDown;
+            textBoxDataPlantio.KeyDown += textBoxDataPlantio_KeyDown;
+            textBoxDataColheita.KeyDown += textBoxDataColheita_KeyDown;
+            textBoxQuantidade.KeyDown += textBoxQuantidade_KeyDown;
+
         }
         private void InitializeDataGridView()
         {
             dataGridViewProducoes = new DataGridView
             {
-                Location = new System.Drawing.Point(36, 230),
+                Location = new System.Drawing.Point(50, 230),
                 Size = new System.Drawing.Size(700, 200),
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 ReadOnly = true,
                 AllowUserToAddRows = false,
                 AllowUserToDeleteRows = false
             };
-
-            // Define manualmente as colunas para exibição inicial
-            dataGridViewProducoes.Columns.Add("Código", "Código");
-            dataGridViewProducoes.Columns.Add("NomeProduto", "Nome do Produto");
-            dataGridViewProducoes.Columns.Add("DataPlantio", "Data de Plantio");
-            dataGridViewProducoes.Columns.Add("Status", "Status");
 
             this.Controls.Add(dataGridViewProducoes); // Adiciona o DataGridView ao formulário
         }
@@ -51,7 +52,7 @@ namespace TelasDesktopPIM
                 try
                 {
                     connection.Open();
-                    string query = "SELECT ProducaoID AS Código, NomeProduto, DataPlantio, Status FROM DBProducoes";
+                    string query = "SELECT ProducaoID AS ProducaoID, NomeProduto, DataPlantio, DataColheita, QuantidadePlantada FROM ProducoesP";
 
                     SqlDataAdapter adapter = new SqlDataAdapter(query, connection);
                     DataTable dataTable = new DataTable();
@@ -71,8 +72,52 @@ namespace TelasDesktopPIM
                 {
                     MessageBox.Show("Erro ao carregar produções: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+
             }
         }
+
+        private void PesquisarProducao(string campo, string valor)
+        {
+            // Exemplo de depuração
+            MessageBox.Show($"Pesquisando por: {campo} = {valor}");
+
+            string query = $@"
+        SELECT ProducaoID, NomeProduto, DataPlantio, DataColheita, QuantidadePlantada 
+        FROM ProducoesP
+        WHERE {campo} LIKE @Valor";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        // Adiciona o parâmetro de valor para a pesquisa
+                        command.Parameters.AddWithValue("@Valor", "%" + valor + "%");
+
+                        SqlDataAdapter adapter = new SqlDataAdapter(command);
+                        DataTable dataTable = new DataTable();
+                        adapter.Fill(dataTable);
+
+                        if (dataTable.Rows.Count > 0)
+                        {
+                            dataGridViewProducoes.DataSource = dataTable; // Exibe os dados no DataGridView
+                        }
+                        else
+                        {
+                            MessageBox.Show("Nenhum resultado encontrado.", "Pesquisa", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            dataGridViewProducoes.DataSource = null;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Erro ao pesquisar: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
 
 
         // Redireciona para a tela de gestao ao ser cliacado
@@ -101,14 +146,24 @@ namespace TelasDesktopPIM
             cadastroProducao.ShowDialog();
         }
 
-        private void textBoxCodigo_TextChanged(object sender, EventArgs e)
+        private void textBoxCodigo_KeyDown(object sender, KeyEventArgs e)
         {
-            // Verifica se o Código foi preenchido para carregar os dados
-            if (int.TryParse(textBoxCodigo.Text, out int producaoID))
+            if (e.KeyCode == Keys.Enter)
             {
-                CarregarDadosProducao(producaoID);
-            }
+                string codigo = textBoxCodigo.Text.Trim();
 
+
+                if (!string.IsNullOrEmpty(codigo))
+                {
+                    // Depuração: Confirme que a pesquisa está sendo chamada corretamente
+                    PesquisarProducao("ProducaoID", codigo);
+                    e.SuppressKeyPress = true; // Impede o som do "bip" ao pressionar Enter
+                }
+                else
+                {
+                    MessageBox.Show("Por favor, insira um código válido.");
+                }
+            }
         }
         // Metodo para carreegar os dados da produção
         private void CarregarDadosProducao(int producaoID)
@@ -121,7 +176,7 @@ namespace TelasDesktopPIM
                     // Abre uma conexão com o banco de dados
                     connection.Open();
                     // Seleciona os dados registrados no banco de dados para exibição
-                    string query = "SELECT * FROM DBProducoes WHERE ProducaoID = @ProducaoID";
+                    string query = "SELECT * FROM ProducoesP WHERE ProducaoID = @ProducaoID";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -130,9 +185,12 @@ namespace TelasDesktopPIM
 
                         if (reader.Read())
                         {
+                            textBoxCodigo.Text = reader["ProducaoID"].ToString();
                             textBoxNomeProduto.Text = reader["NomeProduto"].ToString();
                             textBoxDataPlantio.Text = reader["DataPlantio"].ToString();
-                            textBoxDataColheita.Text = reader["DataColheita"].ToString(); // Caso queira incluir a data de colheita
+                            textBoxDataColheita.Text = reader["DataColheita"].ToString();
+                            textBoxQuantidade.Text = reader["QuantidadePlantada"].ToString();
+
                         }
                         else
                         {
@@ -149,29 +207,59 @@ namespace TelasDesktopPIM
 
 
 
-        private void textBoxNomeProduto_TextChanged(object sender, EventArgs e)
+        private void textBoxNomeProduto_KeyDown(object sender, KeyEventArgs e)
         {
-
+            if (e.KeyCode == Keys.Enter)
+            {
+                string nomeProduto = textBoxNomeProduto.Text.Trim();
+                if (!string.IsNullOrEmpty(nomeProduto))
+                {
+                    PesquisarProducao("NomeProduto", nomeProduto);
+                    e.SuppressKeyPress = true; // Impede o som do "bip" ao pressionar Enter
+                }
+            }
         }
 
-        private void textBoxDataPlantio_TextChanged(object sender, EventArgs e)
+        private void textBoxDataPlantio_KeyDown(object sender, KeyEventArgs e)
         {
+            if (e.KeyCode == Keys.Enter)
+            {
+                string dataPlantio = textBoxDataPlantio.Text.Trim();
 
+                if (!string.IsNullOrEmpty(dataPlantio))
+                {
+                    // Valida se a data está no formato dd/MM/yyyy
+                    if (DateTime.TryParseExact(dataPlantio, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime dataValida))
+                    {
+                        // Converte para o formato yyyy-MM-dd para enviar ao banco
+                        PesquisarProducao("DataPlantio", dataValida.ToString("yyyy-MM-dd"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Por favor, insira uma data válida no formato DD/MM/AAAA.", "Entrada Inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+
+                    e.SuppressKeyPress = true; // Impede o som do "bip" ao pressionar Enter
+                }
+            }
         }
 
         private void pictureBoxDelProducao_Click(object sender, EventArgs e)
         {
-            // Verifica se o código foi preenchido
-            if (string.IsNullOrWhiteSpace(textBoxCodigo.Text))
+            // Verifica se alguma linha foi selecionada
+            if (dataGridViewProducoes.SelectedRows.Count == 0)
             {
                 MessageBox.Show("Por favor, selecione uma produção para excluir.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            int codigoProducao;
-            if (!int.TryParse(textBoxCodigo.Text, out codigoProducao))
+            // Obtém o código da produção da linha selecionada
+            int codigoProducao = Convert.ToInt32(dataGridViewProducoes.SelectedRows[0].Cells["ProducaoID"].Value);
+
+            // Verifica se o código é válido
+            if (codigoProducao <= 0)
             {
-                MessageBox.Show("Código inválido.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Código de produção inválido.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -187,10 +275,10 @@ namespace TelasDesktopPIM
                         connection.Open();
 
                         // Verifica se a produção existe antes de tentar excluir
-                        string verificaExistenciaQuery = "SELECT COUNT(*) FROM DBProducoes WHERE ProducaoID = @ProducaoID";
+                        string verificaExistenciaQuery = "SELECT COUNT(*) FROM ProducoesP WHERE ProducaoID = @ProducaoID";
                         using (SqlCommand commandVerificacao = new SqlCommand(verificaExistenciaQuery, connection))
                         {
-                            commandVerificacao.Parameters.AddWithValue("@ProducaoID", codigoProducao);
+                            commandVerificacao.Parameters.Add("@ProducaoID", SqlDbType.Int).Value = codigoProducao;
                             int count = (int)commandVerificacao.ExecuteScalar();
 
                             if (count == 0)
@@ -201,11 +289,11 @@ namespace TelasDesktopPIM
                         }
 
                         // Exclui a produção do banco de dados
-                        string deleteQuery = "DELETE FROM DBProducoes WHERE ProducaoID = @ProducaoID";
+                        string deleteQuery = "DELETE FROM ProducoesP WHERE ProducaoID = @ProducaoID";
 
                         using (SqlCommand commandDelete = new SqlCommand(deleteQuery, connection))
                         {
-                            commandDelete.Parameters.AddWithValue("@ProducaoID", codigoProducao);
+                            commandDelete.Parameters.Add("@ProducaoID", SqlDbType.Int).Value = codigoProducao;
                             int rowsAffected = commandDelete.ExecuteNonQuery();
 
                             if (rowsAffected > 0)
@@ -227,7 +315,6 @@ namespace TelasDesktopPIM
             }
         }
 
-
         private void pictureBoxEditProducao_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(textBoxCodigo.Text))
@@ -247,7 +334,7 @@ namespace TelasDesktopPIM
                 try
                 {
                     connection.Open();
-                    string query = "UPDATE DBProducoes SET NomeProduto = @NomeProduto, DataPlantio = @DataPlantio, DataColheita = @DataColheita " +
+                    string query = "UPDATE ProducoesP SET NomeProduto = @NomeProduto, DataPlantio = @DataPlantio, DataColheita = @DataColheita " +
                                    "WHERE ProducaoID = @ProducaoID";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -297,9 +384,72 @@ namespace TelasDesktopPIM
 
         private void buttonSair_Click(object sender, EventArgs e)
         {
-            Gestao gestao = new Gestao();
-            gestao.ShowDialog();
-         }
+            DialogResult result = MessageBox.Show("Tem certeza que deseja sair do programa?", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                this.Close(); // Fecha o formulário atual
+                Application.Exit(); // Fecha o programa
+            }
+        }
+
+        private void textBoxDataColheita_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                string dataColheita = textBoxDataColheita.Text.Trim();
+
+                if (!string.IsNullOrEmpty(dataColheita))
+                {
+                    // Valida se a data está no formato dd/MM/yyyy
+                    if (DateTime.TryParseExact(dataColheita, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime dataValida))
+                    {
+                        // Converte para o formato yyyy-MM-dd para enviar ao banco
+                        PesquisarProducao("DataColheita", dataValida.ToString("yyyy-MM-dd"));
+                    }
+                    else
+                    {
+                        MessageBox.Show("Por favor, insira uma data válida no formato DD/MM/AAAA.", "Entrada Inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+
+                    e.SuppressKeyPress = true; // Impede o som do "bip" ao pressionar Enter
+                }
+            }
+        }
+
+        private void textBoxQuantidade_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                string quantidade = textBoxQuantidade.Text.Trim();
+                if (!string.IsNullOrEmpty(quantidade) && int.TryParse(quantidade, out _))
+                {
+                    PesquisarProducao("QuantidadePlantada", quantidade);
+                    e.SuppressKeyPress = true;
+                }
+                else
+                {
+                    MessageBox.Show("Quantidade inválida.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        
+    
+        }
+
+        private void labelGestao_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 

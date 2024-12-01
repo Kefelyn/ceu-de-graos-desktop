@@ -24,13 +24,9 @@ namespace TelasDesktopPIM
 
         }
 
-
-        // String de conexão com o banco de dados
-        private string connectionString = "Server=DESKTOP-AGU3OAL;Database=SistemasFazenda;Integrated Security=True;";
-
-
-
-
+        // Login fixo do administrador
+        private string emailAdmin = "admin@desktop.com";  // Email do admin
+        private string senhaAdmin = "admin123";         // Senha do admin
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -60,13 +56,13 @@ namespace TelasDesktopPIM
 
         private void entrar_Click(object sender, EventArgs e)
         {
-            string usuario = textBoxUsuario.Text;
+            string email = textBoxUsuario.Text;
             string senha = textBoxsenha.Text;
 
-            // Verifica se o login é bem-sucedido
-            if (VerificarLogin(usuario, senha))
+            // Verifica se o login é para o admin fixo
+            if (VerificarLoginAdmin(email, senha))
             {
-                Gestao gestao = new Gestao();
+                Gestao gestao = new Gestao();  // Acesso à área de gestão
                 gestao.ShowDialog();
                 this.Close(); // Fecha a tela de login se o login for bem-sucedido
             }
@@ -76,37 +72,16 @@ namespace TelasDesktopPIM
             }
 
         }
-        // Método para verificar login no banco de dados
-        public bool VerificarLogin(string email, string senha)
+        // Método para verificar se é o admin fixo
+        public bool VerificarLoginAdmin(string email, string senha)
         {
-            bool loginValido = false;
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                try
-                {
-                    conn.Open();
-                    string query = "SELECT COUNT(1) FROM BDusuario WHERE Email = @Email AND Senha = @Senha AND Ativo = 1";
-
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
-                    {
-                        // Define os parâmetros para prevenir SQL Injection
-                        cmd.Parameters.AddWithValue("@Email", email);
-                        cmd.Parameters.AddWithValue("@Senha", senha);
-
-                        int count = Convert.ToInt32(cmd.ExecuteScalar());
-                        loginValido = count == 1; // O login é válido se existir um registro ativo com o email e senha fornecidos
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Erro ao conectar ao banco de dados: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            return loginValido;
+            return email == emailAdmin && senha == senhaAdmin;
         }
 
+        private void label3_Click(object sender, EventArgs e)
+        {
 
+        }
     }
 }
 

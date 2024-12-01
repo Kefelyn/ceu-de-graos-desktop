@@ -71,7 +71,7 @@ namespace TelasDesktopPIM
             }
 
             // String de conexão para autenticação pelo Windows
-            string connectionString = "Server=DESKTOP-AGU3OAL;Database=SistemasFazenda;Integrated Security=True;";
+            string connectionString = "Server=JANUARY\\SQLDEVELOPER;Database=SistemasFazenda;Trusted_Connection=True;";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -105,6 +105,17 @@ namespace TelasDesktopPIM
         private void button2_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void buttonSair_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Tem certeza que deseja sair do programa?", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                this.Close(); // Fecha o formulário atual
+                Application.Exit(); // Fecha o programa
+            }
         }
     }
 }

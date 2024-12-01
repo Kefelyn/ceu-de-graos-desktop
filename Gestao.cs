@@ -54,5 +54,16 @@ namespace TelasDesktopPIM
             GesProducoes producoes = new GesProducoes();
             producoes.ShowDialog();
         }
+
+        private void buttonSair_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Tem certeza que deseja sair do programa?", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                this.Close(); // Fecha o formulário atual
+                Application.Exit(); // Fecha o programa
+            }
+        }
     }
 }

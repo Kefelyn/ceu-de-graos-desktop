@@ -15,7 +15,7 @@ namespace TelasDesktopPIM
     {
 
         // String de conexão para autenticação pelo Windows
-        string connectionString = "Server=DESKTOP-AGU3OAL;Database=SistemasFazenda;Integrated Security=True;";
+        string connectionString = "Server=JANUARY\\SQLDEVELOPER;Database=SistemasFazenda;Trusted_Connection=True;";
         public CadastroProducao()
         {
             InitializeComponent();
@@ -98,7 +98,7 @@ namespace TelasDesktopPIM
 
                         // Insere a nova produção no banco de dados com o status inicial "Plantado"
                         string status = "Plantado";
-                        string queryProducao = "INSERT INTO DBProducoes (ProdutoID, NomeProduto, DataPlantio, DataColheita, Status, QuantidadePlantada) " +
+                        string queryProducao = "INSERT INTO ProducoesP (ProdutoID, NomeProduto, DataPlantio, DataColheita, Status, QuantidadePlantada) " +
                                                "VALUES (@ProdutoID, @NomeProduto, @DataPlantio, @DataColheita, @Status, @QuantidadePlantada)";
 
                         using (SqlCommand commandProducao = new SqlCommand(queryProducao, connection))
@@ -146,6 +146,22 @@ namespace TelasDesktopPIM
         private void textBoxProduto1_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void buttonSair_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Tem certeza que deseja sair do programa?", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                this.Close(); // Fecha o formulário atual
+                Application.Exit(); // Fecha o programa
+            }
+        }
+
+        private void labelGestao_Click(object sender, EventArgs e)
+        {
+            
         }
     }
 }
