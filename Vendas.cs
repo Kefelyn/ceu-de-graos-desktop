@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -26,10 +27,13 @@ namespace TelasDesktopPIM
             InitializeDataGridView();
             LoadPedidos();
 
-            textBoxCpfCnpj.KeyDown += textBoxCpfCnpj_KeyDown;
+            textBoxCodigo.KeyDown += textBoxCodigo_KeyDown;
             textBoxProduto.KeyDown += textBoxProduto_KeyDown;
             textBoxDataCompra.KeyDown += textBoxDataCompra_KeyDown;
             textBoxValor.KeyDown += textBoxValor_KeyDown;
+            textBoxQuantidade.KeyDown += textBoxQuantidade_KeyDown;
+            textBoxCodigo.KeyDown += textBoxCodigo_KeyDown;
+            textBoxCodigoCliente.KeyDown += textBoxCodigoCliente_KeyDown;
         }
 
         private void InitializeDataGridView()
@@ -47,36 +51,6 @@ namespace TelasDesktopPIM
             this.Controls.Add(dataGridViewPedidos); // Adiciona o DataGridView ao formulário
         }
 
-        private void dataGridViewPedidos_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0 && e.ColumnIndex == dataGridViewPedidos.Columns["StatusColumn"].Index)
-            {
-                try
-                {
-                    int pedidoId = Convert.ToInt32(dataGridViewPedidos.Rows[e.RowIndex].Cells["ID do Pedido"].Value);
-                    int statusId = Convert.ToInt32(dataGridViewPedidos.Rows[e.RowIndex].Cells["StatusColumn"].Value);
-
-                    // Atualizar o Status no banco de dados
-                    using (SqlConnection conn = new SqlConnection(connectionString))
-                    {
-                        conn.Open();
-                        string updateQuery = "UPDATE BDPedidos SET StatusID = @StatusID WHERE PedidoID = @PedidoID";
-                        SqlCommand cmd = new SqlCommand(updateQuery, conn);
-                        cmd.Parameters.AddWithValue("@StatusID", statusId);
-                        cmd.Parameters.AddWithValue("@PedidoID", pedidoId);
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    MessageBox.Show("Status do pedido atualizado com sucesso.", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Erro ao atualizar status: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-
         private void LoadPedidos()
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -85,23 +59,21 @@ namespace TelasDesktopPIM
                 {
                     conn.Open();
 
-                    // Consulta SQL para carregar os pedidos
+                    // Consulta SQL para carregar os pedidos com as colunas necessárias
                     string query = @"
-                SELECT 
-                    BDPedidos.PedidoID AS [ID do Pedido],
-                    BDusuario.Nome AS [Cliente],
-                    Produtos.NomeProduto AS [Produto],
-                    BDItensPedido.Quantidade AS [Quantidade],
-                    BDItensPedido.Preco AS [Preço Unitário],
-                    BDPedidos.DataPedido AS [Data da Compra],
-                    StatusPedidos.StatusID AS [StatusID], -- Alterado para carregar o StatusID
-                    StatusPedidos.StatusDescricao AS [Status]
-                FROM BDPedidos
-                INNER JOIN BDusuario ON BDPedidos.UsuarioID = BDusuario.UsuarioID
-                INNER JOIN BDItensPedido ON BDPedidos.PedidoID = BDItensPedido.PedidoID
-                INNER JOIN Produtos ON BDItensPedido.ProdutoID = Produtos.ProdutoID
-                INNER JOIN StatusPedidos ON BDPedidos.StatusID = StatusPedidos.StatusID
-                ORDER BY BDPedidos.DataPedido DESC";
+                    SELECT 
+                        BDPedidos.PedidoID AS [ID do Pedido],  
+                        BDusuario.UsuarioID AS [Cliente],  -- Alterado para UsuarioID
+                        Produtos.NomeProduto AS [Produto],     
+                        BDItensPedido.Quantidade AS [Quantidade], 
+                        BDPedidos.ValorTotal AS [Valor Total], 
+                        BDPedidos.DataPedido AS [Data da Compra]
+                    FROM BDPedidos
+                    INNER JOIN BDusuario ON BDPedidos.UsuarioID = BDusuario.UsuarioID
+                    INNER JOIN BDItensPedido ON BDPedidos.PedidoID = BDItensPedido.PedidoID
+                    INNER JOIN Produtos ON BDItensPedido.ProdutoID = Produtos.ProdutoID
+                    ORDER BY BDPedidos.DataPedido DESC";
+
 
                     SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
                     DataTable dataTable = new DataTable();
@@ -112,8 +84,6 @@ namespace TelasDesktopPIM
                         // Vincula os dados no DataGridView
                         dataGridViewPedidos.DataSource = dataTable;
 
-                        // Adiciona o ComboBox para editar o Status
-                        AddStatusComboBoxColumn();
                     }
                     else
                     {
@@ -124,38 +94,6 @@ namespace TelasDesktopPIM
                 catch (Exception ex)
                 {
                     MessageBox.Show("Erro ao carregar pedidos: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-        private void AddStatusComboBoxColumn()
-        {
-            // Criar o ComboBoxColumn
-            DataGridViewComboBoxColumn statusColumn = new DataGridViewComboBoxColumn();
-            statusColumn.HeaderText = "Status";
-            statusColumn.Name = "StatusColumn";
-            statusColumn.DataPropertyName = "StatusID"; // Usamos o StatusID para vincular com a tabela
-            statusColumn.DisplayMember = "StatusDescricao"; // O texto que será exibido
-            statusColumn.ValueMember = "StatusID"; // O valor que será enviado para o banco
-            statusColumn.Width = 120;
-
-            // Preencher o ComboBox com os Status disponíveis
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                try
-                {
-                    conn.Open();
-                    string query = "SELECT StatusID, StatusDescricao FROM StatusPedidos";
-                    SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-                    DataTable statusDataTable = new DataTable();
-                    adapter.Fill(statusDataTable);
-
-                    statusColumn.DataSource = statusDataTable;
-                    dataGridViewPedidos.Columns.Add(statusColumn);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Erro ao carregar status: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -173,41 +111,33 @@ namespace TelasDesktopPIM
 
                     // Consulta SQL dinâmica para pesquisa
                     string query = $@"
-                SELECT 
-                BDPedidos.PedidoID AS [ID do Pedido],
-                BDusuario.Nome AS [Cliente],
-                Produtos.NomeProduto AS [Produto],
-                BDItensPedido.Quantidade AS [Quantidade],
-                BDItensPedido.Preco AS [Preço Unitário],
-                BDPedidos.DataPedido AS [Data da Compra],
-                StatusPedidos.StatusID AS [StatusID],
-                StatusPedidos.StatusDescricao AS [Status],
-                BDPedidos.ValorTotal AS [Valor Total]
-            FROM BDPedidos
-            INNER JOIN BDusuario ON BDPedidos.UsuarioID = BDusuario.UsuarioID
-            INNER JOIN BDItensPedido ON BDPedidos.PedidoID = BDItensPedido.PedidoID
-            INNER JOIN Produtos ON BDItensPedido.ProdutoID = Produtos.ProdutoID
-            INNER JOIN StatusPedidos ON BDPedidos.StatusID = StatusPedidos.StatusID
-            WHERE {coluna} LIKE @Valor
-            ORDER BY BDPedidos.DataPedido DESC";
+                    SELECT 
+                        BDPedidos.PedidoID AS [ID do Pedido],
+                        BDusuario.UsuarioID AS [Cliente],  -- Alterado para UsuarioID
+                        Produtos.NomeProduto AS [Produto],   
+                        BDItensPedido.Quantidade AS [Quantidade], 
+                        BDPedidos.ValorTotal AS [Valor Total], 
+                        BDPedidos.DataPedido AS [Data da Compra]
+                    FROM BDPedidos
+                    INNER JOIN BDusuario ON BDPedidos.UsuarioID = BDusuario.UsuarioID
+                    INNER JOIN BDItensPedido ON BDPedidos.PedidoID = BDItensPedido.PedidoID
+                    INNER JOIN Produtos ON BDItensPedido.ProdutoID = Produtos.ProdutoID
+                    WHERE {coluna} LIKE @Valor
+                    ORDER BY BDPedidos.DataPedido DESC";
+
 
                     SqlCommand command = new SqlCommand(query, connection);
-                    command.Parameters.AddWithValue("@Valor", valor);
+                    command.Parameters.AddWithValue("@Valor", "%" + valor + "%");
 
-                    try
-                    {
-                        connection.Open();
-                        SqlDataReader reader = command.ExecuteReader();
-                        // Processar os resultados da pesquisa aqui
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Erro ao realizar a pesquisa: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    SqlDataAdapter adapter = new SqlDataAdapter(command);
+                    DataTable dataTable = new DataTable();
+                    adapter.Fill(dataTable);
+
+                    dataGridViewPedidos.DataSource = dataTable;
                 }
-                catch (Exception ex) // Adicionei o catch para o bloco externo
+                catch (Exception ex)
                 {
-                    MessageBox.Show($"Erro ao tentar abrir a conexão: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Erro ao realizar a pesquisa: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -221,27 +151,41 @@ namespace TelasDesktopPIM
 
 
 
-        private void textBoxCpfCnpj_KeyDown(object sender, KeyEventArgs e)
+        private void textBoxCodigo_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
+            if (e.KeyCode == Keys.Enter) // Quando a tecla Enter for pressionada
             {
-                string cpfCnpj = textBoxCpfCnpj.Text.Trim();
+                string pedidoId = textBoxCodigo.Text.Trim(); // Obtém o texto digitado no campo textBoxCodigo
 
-                if (!string.IsNullOrEmpty(cpfCnpj))
+                if (!string.IsNullOrEmpty(pedidoId)) // Verifica se o campo não está vazio
                 {
-                    PesquisarPedido("BDusuario.CPF_CNPJ", cpfCnpj);
+                    // Chama o método de pesquisa passando a coluna "PedidoID" e o valor inserido
+                    PesquisarPedido("BDPedidos.PedidoID", pedidoId);
                     e.SuppressKeyPress = true; // Impede o som do "bip" ao pressionar Enter
                 }
+                else
+                {
+                    MessageBox.Show("Por favor, insira um ID de pedido para realizar a pesquisa.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
-
         }
 
         private void textBoxProduto_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) // A pesquisa é feita ao pressionar Enter
+            if (e.KeyCode == Keys.Enter) // A pesquisa ocorre ao pressionar Enter
             {
-                PesquisarPedido("Produtos.NomeProduto", textBoxProduto.Text);
-                e.SuppressKeyPress = true; // Impede o "bip" do Enter
+                string produto = textBoxProduto.Text.Trim();
+
+                // Verifica se o campo de pesquisa não está vazio
+                if (!string.IsNullOrEmpty(produto))
+                {
+                    PesquisarPedido("Produtos.NomeProduto", produto);
+                    e.SuppressKeyPress = true; // Impede o "bip" ao pressionar Enter
+                }
+                else
+                {
+                    MessageBox.Show("Por favor, insira o nome do produto para realizar a pesquisa.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
         }
 
@@ -254,7 +198,7 @@ namespace TelasDesktopPIM
 
                 if (DateTime.TryParseExact(dataCompra, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime data))
                 {
-                    PesquisarPedido("BDPedidos.DataPedido", data.ToString("yyyy-MM-dd"));
+                    PesquisarPedido("BDPedidos.DataPedido", data.ToString("yyyy-MM-dd")); // Verifique o formato da data aqui
                     e.SuppressKeyPress = true;
                 }
                 else
@@ -294,12 +238,18 @@ namespace TelasDesktopPIM
 
         private void textBoxValor_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) // Pesquisa apenas ao pressionar Enter
+            if (e.KeyCode == Keys.Enter) // Pesquisa ao pressionar Enter
             {
-                string valor = textBoxValor.Text.Trim();
+                string valor = textBoxValor.Text.Trim(); // Obtém o valor digitado no campo
+
+                // Verifica se o valor é um número válido e maior que zero
                 if (decimal.TryParse(valor, out decimal valorDecimal) && valorDecimal > 0)
                 {
-                    PesquisarPedido("BDPedidos.ValorTotal", valorDecimal.ToString("F2"));
+                    // Formata o valor como uma string com 2 casas decimais
+                    string valorFormatado = valorDecimal.ToString("F2");
+
+                    // Chama a função PesquisarPedido usando LIKE no SQL para permitir pesquisa parcial
+                    PesquisarPedido("BDPedidos.ValorTotal", "%" + valorFormatado + "%");
                     e.SuppressKeyPress = true; // Impede o "bip" ao pressionar Enter
                 }
                 else
@@ -362,6 +312,51 @@ namespace TelasDesktopPIM
         private void label3_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void labelGestao_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxQuantidade_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter) // Pesquisa apenas ao pressionar Enter
+            {
+                string quantidade = textBoxQuantidade.Text.Trim();
+                if (int.TryParse(quantidade, out int quantidadeInt) && quantidadeInt > 0)
+                {
+                    PesquisarPedido("BDItensPedido.Quantidade", quantidadeInt.ToString());
+                    e.SuppressKeyPress = true; // Impede o "bip" ao pressionar Enter
+                }
+                else
+                {
+                    MessageBox.Show("Por favor, insira uma quantidade válida maior que zero.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxCodigoCliente_KeyDown(object sender, KeyEventArgs e)
+        {
+            string UsuarioId = textBoxCodigoCliente.Text.Trim();
+
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (!string.IsNullOrEmpty(UsuarioId)) // Verifica se o campo não está vazio
+                {
+                    PesquisarPedido("BDusuario.UsuarioID", UsuarioId);
+                    e.SuppressKeyPress = true; // Impede o som do "bip" ao pressionar Enter
+                }
+                else
+                {
+                    MessageBox.Show("Por favor, insira um ID de pedido para realizar a pesquisa.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
         }
     }
 }

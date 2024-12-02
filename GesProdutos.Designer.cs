@@ -207,6 +207,7 @@
             this.labelGestao.Size = new System.Drawing.Size(340, 36);
             this.labelGestao.TabIndex = 23;
             this.labelGestao.Text = "LISTA DE PRODUTOS";
+            this.labelGestao.Click += new System.EventHandler(this.labelGestao_Click);
             // 
             // pictureBoxDelProduto
             // 

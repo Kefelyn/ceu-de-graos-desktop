@@ -267,5 +267,10 @@ namespace TelasDesktopPIM
                 }
             }
         }
+
+        private void labelGestao_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

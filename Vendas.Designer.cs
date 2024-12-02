@@ -35,7 +35,7 @@
             this.buttonGestão = new System.Windows.Forms.Button();
             this.textBoxDataCompra = new System.Windows.Forms.TextBox();
             this.textBoxProduto = new System.Windows.Forms.TextBox();
-            this.textBoxCpfCnpj = new System.Windows.Forms.TextBox();
+            this.textBoxCodigo = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -43,6 +43,10 @@
             this.label5 = new System.Windows.Forms.Label();
             this.textBoxValor = new System.Windows.Forms.TextBox();
             this.pictureBoxDelVendas = new System.Windows.Forms.PictureBox();
+            this.textBoxQuantidade = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.textBoxCodigoCliente = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxDelVendas)).BeginInit();
@@ -118,7 +122,7 @@
             // textBoxDataCompra
             // 
             this.textBoxDataCompra.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxDataCompra.Location = new System.Drawing.Point(686, 226);
+            this.textBoxDataCompra.Location = new System.Drawing.Point(771, 226);
             this.textBoxDataCompra.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxDataCompra.Name = "textBoxDataCompra";
             this.textBoxDataCompra.Size = new System.Drawing.Size(152, 24);
@@ -128,29 +132,29 @@
             // textBoxProduto
             // 
             this.textBoxProduto.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxProduto.Location = new System.Drawing.Point(362, 226);
+            this.textBoxProduto.Location = new System.Drawing.Point(376, 226);
             this.textBoxProduto.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxProduto.Name = "textBoxProduto";
-            this.textBoxProduto.Size = new System.Drawing.Size(148, 24);
+            this.textBoxProduto.Size = new System.Drawing.Size(134, 24);
             this.textBoxProduto.TabIndex = 49;
             this.textBoxProduto.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxProduto_KeyDown);
             // 
-            // textBoxCpfCnpj
+            // textBoxCodigo
             // 
-            this.textBoxCpfCnpj.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxCpfCnpj.Location = new System.Drawing.Point(125, 226);
-            this.textBoxCpfCnpj.Margin = new System.Windows.Forms.Padding(4);
-            this.textBoxCpfCnpj.Name = "textBoxCpfCnpj";
-            this.textBoxCpfCnpj.Size = new System.Drawing.Size(207, 24);
-            this.textBoxCpfCnpj.TabIndex = 48;
-            this.textBoxCpfCnpj.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxCpfCnpj_KeyDown);
+            this.textBoxCodigo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxCodigo.Location = new System.Drawing.Point(113, 226);
+            this.textBoxCodigo.Margin = new System.Windows.Forms.Padding(4);
+            this.textBoxCodigo.Name = "textBoxCodigo";
+            this.textBoxCodigo.Size = new System.Drawing.Size(111, 24);
+            this.textBoxCodigo.TabIndex = 48;
+            this.textBoxCodigo.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxCodigo_KeyDown);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.ForeColor = System.Drawing.Color.Green;
-            this.label3.Location = new System.Drawing.Point(682, 191);
+            this.label3.Location = new System.Drawing.Point(767, 191);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(143, 20);
@@ -163,7 +167,7 @@
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.Green;
-            this.label2.Location = new System.Drawing.Point(358, 191);
+            this.label2.Location = new System.Drawing.Point(372, 191);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(74, 20);
@@ -175,12 +179,12 @@
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.Green;
-            this.label1.Location = new System.Drawing.Point(121, 191);
+            this.label1.Location = new System.Drawing.Point(109, 191);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(99, 20);
+            this.label1.Size = new System.Drawing.Size(67, 20);
             this.label1.TabIndex = 44;
-            this.label1.Text = "CPF/CNPJ";
+            this.label1.Text = "Código";
             // 
             // labelGestao
             // 
@@ -193,13 +197,14 @@
             this.labelGestao.Size = new System.Drawing.Size(304, 36);
             this.labelGestao.TabIndex = 43;
             this.labelGestao.Text = "LISTA DE PEDIDOS";
+            this.labelGestao.Click += new System.EventHandler(this.labelGestao_Click);
             // 
             // label5
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.Green;
-            this.label5.Location = new System.Drawing.Point(535, 191);
+            this.label5.Location = new System.Drawing.Point(647, 191);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(53, 20);
@@ -210,17 +215,17 @@
             // textBoxValor
             // 
             this.textBoxValor.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBoxValor.Location = new System.Drawing.Point(539, 226);
+            this.textBoxValor.Location = new System.Drawing.Point(651, 226);
             this.textBoxValor.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxValor.Name = "textBoxValor";
-            this.textBoxValor.Size = new System.Drawing.Size(113, 24);
+            this.textBoxValor.Size = new System.Drawing.Size(100, 24);
             this.textBoxValor.TabIndex = 54;
             this.textBoxValor.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxValor_KeyDown);
             // 
             // pictureBoxDelVendas
             // 
             this.pictureBoxDelVendas.Image = global::TelasDesktopPIM.Properties.Resources.ic_lixeira_70;
-            this.pictureBoxDelVendas.Location = new System.Drawing.Point(871, 217);
+            this.pictureBoxDelVendas.Location = new System.Drawing.Point(930, 217);
             this.pictureBoxDelVendas.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.pictureBoxDelVendas.Name = "pictureBoxDelVendas";
             this.pictureBoxDelVendas.Size = new System.Drawing.Size(28, 33);
@@ -229,17 +234,66 @@
             this.pictureBoxDelVendas.TabStop = false;
             this.pictureBoxDelVendas.Click += new System.EventHandler(this.pictureBoxDelVendas_Click);
             // 
+            // textBoxQuantidade
+            // 
+            this.textBoxQuantidade.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxQuantidade.Location = new System.Drawing.Point(529, 226);
+            this.textBoxQuantidade.Margin = new System.Windows.Forms.Padding(4);
+            this.textBoxQuantidade.Name = "textBoxQuantidade";
+            this.textBoxQuantidade.Size = new System.Drawing.Size(100, 24);
+            this.textBoxQuantidade.TabIndex = 57;
+            this.textBoxQuantidade.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxQuantidade_KeyDown);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.ForeColor = System.Drawing.Color.Green;
+            this.label4.Location = new System.Drawing.Point(525, 191);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(104, 20);
+            this.label4.TabIndex = 56;
+            this.label4.Text = "Quantidade";
+            // 
+            // textBoxCodigoCliente
+            // 
+            this.textBoxCodigoCliente.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textBoxCodigoCliente.Location = new System.Drawing.Point(246, 226);
+            this.textBoxCodigoCliente.Margin = new System.Windows.Forms.Padding(4);
+            this.textBoxCodigoCliente.Name = "textBoxCodigoCliente";
+            this.textBoxCodigoCliente.Size = new System.Drawing.Size(111, 24);
+            this.textBoxCodigoCliente.TabIndex = 59;
+            this.textBoxCodigoCliente.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxCodigoCliente_KeyDown);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.ForeColor = System.Drawing.Color.Green;
+            this.label6.Location = new System.Drawing.Point(242, 191);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(93, 20);
+            this.label6.TabIndex = 58;
+            this.label6.Text = "ID Cliente";
+            this.label6.Click += new System.EventHandler(this.label6_Click);
+            // 
             // Vendas
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1067, 554);
+            this.Controls.Add(this.textBoxCodigoCliente);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.textBoxQuantidade);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.pictureBoxDelVendas);
             this.Controls.Add(this.textBoxValor);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.textBoxDataCompra);
             this.Controls.Add(this.textBoxProduto);
-            this.Controls.Add(this.textBoxCpfCnpj);
+            this.Controls.Add(this.textBoxCodigo);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -265,7 +319,7 @@
         private System.Windows.Forms.Button buttonGestão;
         private System.Windows.Forms.TextBox textBoxDataCompra;
         private System.Windows.Forms.TextBox textBoxProduto;
-        private System.Windows.Forms.TextBox textBoxCpfCnpj;
+        private System.Windows.Forms.TextBox textBoxCodigo;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
@@ -273,5 +327,9 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox textBoxValor;
         private System.Windows.Forms.PictureBox pictureBoxDelVendas;
+        private System.Windows.Forms.TextBox textBoxQuantidade;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox textBoxCodigoCliente;
+        private System.Windows.Forms.Label label6;
     }
 }
